@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chem or Not - Agent Chemistry</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive;
+            background: linear-gradient(135deg, #FFE5F1 0%, #E5F3FF 50%, #F0F8E5 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .lab-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, 
+                #E8F4FD 0%, 
+                #FFF0F5 30%, 
+                #F0F8E8 60%, 
+                #FFEAA7 100%);
+            z-index: -2;
+        }
+
+        .lab-shelves {
+            position: absolute;
+            top: 100px;
+            left: 0;
+            width: 100%;
+            height: 150px;
+            background: linear-gradient(to right, #D2B48C, #DEB887);
+            border-radius: 10px;
+            z-index: -1;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .lab-equipment-decoration {
+            position: absolute;
+            top: 50px;
+            width: 100%;
+            height: 200px;
+            z-index: -1;
+        }
+
+        .beaker {
+            position: absolute;
+            width: 60px;
+            height: 80px;
+            background: linear-gradient(to bottom, #FFB6C1, #FFC0CB);
+            border-radius: 5px 5px 15px 15px;
+            border: 3px solid #FF69B4;
+            animation: bubble 2s ease-in-out infinite;
+        }
+
+        .beaker:nth-child(1) { left: 10%; top: 120px; }
+        .beaker:nth-child(2) { left: 25%; top: 110px; background: linear-gradient(to bottom, #87CEEB, #B0E0E6); border-color: #4682B4; }
+        .beaker:nth-child(3) { right: 20%; top: 115px; background: linear-gradient(to bottom, #98FB98, #90EE90); border-color: #32CD32; }
+        .beaker:nth-child(4) { right: 5%; top: 125px; background: linear-gradient(to bottom, #FFEB9C, #F0E68C); border-color: #DAA520; }
+
+        @keyframes bubble {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-5px) scale(1.02); }
+        }
+
+        .flask-set {
+            position: absolute;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+        }
+
+        .flask {
+            width: 40px;
+            height: 60px;
+            background: linear-gradient(135deg, #DDA0DD, #DA70D6);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            border: 2px solid #9370DB;
+            position: relative;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .flask::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 15px;
+            background: #9370DB;
+            border-radius: 4px;
+        }
+
+        .microscope {
+            position: absolute;
+            right: 15%;
+            top: 80px;
+            width: 80px;
+            height: 100px;
+            background: linear-gradient(145deg, #B19CD9, #C8B2DB);
+            border-radius: 10px;
+            border: 3px solid #8A2BE2;
+            animation: tilt 4s ease-in-out infinite;
+        }
+
+        @keyframes tilt {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(2deg); }
+        }
+
+        .test-tubes {
+            position: absolute;
+            left: 40%;
+            top: 100px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .test-tube {
+            width: 12px;
+            height: 50px;
+            background: linear-gradient(to bottom, #FFB347, #FFA500);
+            border-radius: 0 0 6px 6px;
+            border: 2px solid #FF8C00;
+            animation: shake 2s ease-in-out infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(1deg); }
+            75% { transform: rotate(-1deg); }
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,240,245,0.9));
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            margin: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 2px solid rgba(255,182,193,0.3);
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #8A2BE2;
+        }
+
+        .hearts {
+            display: flex;
+            gap: 5px;
+        }
+
+        .heart {
+            font-size: 24px;
+            color: #FF69B4;
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .score {
+            color: #32CD32;
+        }
+
+        .level {
+            color: #4682B4;
+        }
+
+        .character-container {
+            position: relative;
+            width: 250px;
+            height: 300px;
+            margin: 20px auto;
+        }
+
+        .character {
+            width: 180px;
+            height: 220px;
+            background: linear-gradient(145deg, #FFEAA7 0%, #FFD93D 100%);
+            border-radius: 50% 50% 30% 30%;
+            position: relative;
+            margin: 0 auto;
+            animation: float 3s ease-in-out infinite;
+            border: 4px solid #FFA502;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .character-face {
+            position: absolute;
+            top: 25%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .eyes {
+            display: flex;
+            gap: 25px;
+            margin-bottom: 15px;
+        }
+
+        .eye {
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #000 40%, #333 100%);
+            border-radius: 50%;
+            animation: blink 3s infinite;
+            position: relative;
+        }
+
+        .eye::before {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 6px;
+            width: 6px;
+            height: 6px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        @keyframes blink {
+            0%, 90%, 100% { transform: scaleY(1); }
+            95% { transform: scaleY(0.1); }
+        }
+
+        .mouth {
+            width: 35px;
+            height: 20px;
+            background: linear-gradient(to bottom, #FF69B4, #FF1493);
+            border-radius: 0 0 35px 35px;
+            margin: 0 auto;
+            animation: talk 0.8s ease-in-out infinite alternate;
+            position: relative;
+        }
+
+        .mouth::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 3px;
+            background: #8B0000;
+            border-radius: 2px;
+        }
+
+        @keyframes talk {
+            0% { transform: scaleY(1); }
+            100% { transform: scaleY(0.7); }
+        }
+
+        .nose {
+            position: absolute;
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 8px solid #FF8C69;
+        }
+
+        .cheeks {
+            position: absolute;
+            top: 10px;
+            width: 15px;
+            height: 15px;
+            background: #FFB6C1;
+            border-radius: 50%;
+            animation: blush 2s ease-in-out infinite;
+        }
+
+        .cheeks.left { left: -30px; }
+        .cheeks.right { right: -30px; }
+
+        @keyframes blush {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .lab-coat {
+            position: absolute;
+            top: 55%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 160px;
+            height: 140px;
+            background: linear-gradient(145deg, #FFFFFF, #F8F8FF);
+            border-radius: 15px;
+            border: 3px solid #E6E6FA;
+            box-shadow: inset 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .lab-coat::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            border: 2px dashed #DDA0DD;
+            border-radius: 10px;
+        }
+
+        .lab-coat-buttons {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .coat-button {
+            width: 12px;
+            height: 12px;
+            background: linear-gradient(145deg, #87CEEB, #4682B4);
+            border-radius: 50%;
+            border: 2px solid #4169E1;
+            animation: shine 3s ease-in-out infinite;
+        }
+
+        @keyframes shine {
+            0%, 100% { box-shadow: 0 0 5px rgba(70,130,180,0.5); }
+            50% { box-shadow: 0 0 15px rgba(70,130,180,0.8); }
+        }
+
+        .safety-goggles {
+            position: absolute;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 25px;
+            background: linear-gradient(145deg, #FFE135, #FFA502);
+            border-radius: 20px;
+            border: 3px solid #FF6348;
+            z-index: 10;
+        }
+
+        .goggles-lens {
+            position: absolute;
+            top: 3px;
+            width: 25px;
+            height: 19px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.8), rgba(173,216,230,0.6));
+            border-radius: 50%;
+            border: 2px solid #4682B4;
+        }
+
+        .goggles-lens.left { left: 8px; }
+        .goggles-lens.right { right: 8px; }
+
+        .speech-bubble {
+            position: absolute;
+            top: -80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(145deg, #FFFFFF, #F0F8FF);
+            padding: 20px;
+            border-radius: 25px;
+            border: 4px solid #8A2BE2;
+            max-width: 320px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            color: #4B0082;
+            animation: bounce 0.6s ease-out;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 15px solid #8A2BE2;
+        }
+
+        .speech-bubble::before {
+            content: '';
+            position: absolute;
+            bottom: -11px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-top: 12px solid #FFFFFF;
+            z-index: 1;
+        }
+
+        @keyframes bounce {
+            0% { transform: translateX(-50%) scale(0) rotate(180deg); }
+            50% { transform: translateX(-50%) scale(1.1) rotate(-5deg); }
+            100% { transform: translateX(-50%) scale(1) rotate(0deg); }
+        }
+
+        .question-container {
+            background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(255,240,245,0.95));
+            border-radius: 25px;
+            padding: 35px;
+            margin: 20px;
+            text-align: center;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            border: 4px solid #DDA0DD;
+            backdrop-filter: blur(10px);
+        }
+
+        .question {
+            font-size: 26px;
+            font-weight: bold;
+            color: #4B0082;
+            margin-bottom: 35px;
+            line-height: 1.5;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .buttons {
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 18px 35px;
+            font-size: 22px;
+            font-weight: bold;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-true {
+            background: linear-gradient(145deg, #00D2FF, #3A7BD5);
+            color: white;
+            border: 3px solid #0081C9;
+        }
+
+        .btn-false {
+            background: linear-gradient(145deg, #FF6B9D, #FF8E8E);
+            color: white;
+            border: 3px solid #FF1744;
+        }
+
+        .btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        .level-complete {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, #FFE066, #FFEB3B);
+            padding: 50px;
+            border-radius: 25px;
+            text-align: center;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+            border: 5px solid #FF6B35;
+            z-index: 1000;
+            color: #8B4513;
+        }
+
+        .reward-item {
+            display: inline-block;
+            margin: 15px;
+            padding: 15px 25px;
+            background: linear-gradient(145deg, #FFF, #F8F8FF);
+            border-radius: 20px;
+            font-weight: bold;
+            color: #8A2BE2;
+            border: 3px solid #DDA0DD;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            animation: bounce 1s ease-in-out infinite alternate;
+        }
+
+        .game-over {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, #FF6B9D, #FF8E8E);
+            color: white;
+            padding: 50px;
+            border-radius: 25px;
+            text-align: center;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            border: 5px solid #FF1744;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: linear-gradient(145deg, #E8E8E8, #F5F5F5);
+            border-radius: 6px;
+            margin: 20px 0;
+            overflow: hidden;
+            border: 2px solid #DDA0DD;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(145deg, #00D2FF, #3A7BD5);
+            transition: width 0.8s ease;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .sound-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(255,240,245,0.9));
+            border: 3px solid #FF69B4;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            font-size: 24px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .sound-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .equipment-showcase {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        .equipment-item {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 35px;
+            animation: spin 2s linear infinite;
+            border: 4px solid #FFD700;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .floating-molecules {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .molecule {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle, #FF69B4, #FFB6C1);
+            border-radius: 50%;
+            animation: drift 8s linear infinite;
+            opacity: 0.7;
+        }
+
+        .molecule:nth-child(1) { left: 10%; animation-delay: 0s; }
+        .molecule:nth-child(2) { left: 20%; animation-delay: -2s; }
+        .molecule:nth-child(3) { left: 30%; animation-delay: -4s; }
+        .molecule:nth-child(4) { left: 40%; animation-delay: -6s; }
+        .molecule:nth-child(5) { left: 50%; animation-delay: -1s; }
+        .molecule:nth-child(6) { left: 60%; animation-delay: -3s; }
+        .molecule:nth-child(7) { left: 70%; animation-delay: -5s; }
+        .molecule:nth-child(8) { left: 80%; animation-delay: -7s; }
+
+        @keyframes drift {
+            0% { transform: translateY(100vh) rotate(0deg); }
+            100% { transform: translateY(-100px) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <button class="sound-toggle" onclick="toggleSound()">🔊</button>
+    
+    <div class="game-container">
+        <div class="lab-background"></div>
+        
+        <!-- Floating molecules background -->
+        <div class="floating-molecules">
+            <div class="molecule"></div>
+            <div class="molecule"></div>
+            <div class="molecule"></div>
+            <div class="molecule"></div>
+            <div class="molecule"></div>
+            <div class="molecule"></div>
+            <div class="molecule"></div>
+            <div class="molecule"></div>
+        </div>
+        
+        <!-- Lab equipment decorations -->
+        <div class="lab-equipment-decoration">
+            <div class="lab-shelves"></div>
+            <div class="beaker"></div>
+            <div class="beaker"></div>
+            <div class="beaker"></div>
+            <div class="beaker"></div>
+            <div class="flask-set">
+                <div class="flask"></div>
+                <div class="flask"></div>
+                <div class="flask"></div>
+            </div>
+            <div class="microscope"></div>
+            <div class="test-tubes">
+                <div class="test-tube"></div>
+                <div class="test-tube"></div>
+                <div class="test-tube"></div>
+                <div class="test-tube"></div>
+                <div class="test-tube"></div>
+            </div>
+        </div>
+        
+        <div class="header">
+            <div class="stats">
+                <div class="stat-item">
+                    <span>❤️</span>
+                    <div class="hearts" id="hearts">
+                        <span class="heart">♥</span>
+                        <span class="heart">♥</span>
+                        <span class="heart">♥</span>
+                    </div>
+                </div>
+                <div class="stat-item score">
+                    <span>⭐</span>
+                    <span id="score">0</span>
+                </div>
+                <div class="stat-item level">
+                    <span>🧪</span>
+                    <span>Level <span id="level">1</span></span>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress"></div>
+            </div>
+        </div>
+
+        <div class="character-container">
+            <div class="character">
+                <div class="safety-goggles">
+                    <div class="goggles-lens left"></div>
+                    <div class="goggles-lens right"></div>
+                </div>
+                <div class="character-face">
+                    <div class="eyes">
+                        <div class="eye"></div>
+                        <div class="eye"></div>
+                    </div>
+                    <div class="nose"></div>
+                    <div class="mouth"></div>
+                    <div class="cheeks left"></div>
+                    <div class="cheeks right"></div>
+                </div>
+                <div class="lab-coat">
+                    <div class="lab-coat-buttons">
+                        <div class="coat-button"></div>
+                        <div class="coat-button"></div>
+                        <div class="coat-button"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="speech-bubble" id="speechBubble">
+                Halo Agent! Siap untuk misi kimia pertama? 🧪✨
+            </div>
+        </div>
+
+        <div class="question-container">
+            <div class="question" id="question">
+                Air (H₂O) terdiri dari 2 atom hidrogen dan 1 atom oksigen
+            </div>
+            <div class="buttons">
+                <button class="btn btn-true" onclick="answer(true)">BENAR ✓</button>
+                <button class="btn btn-false" onclick="answer(false)">SALAH ✗</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Level Complete Modal -->
+    <div class="level-complete hidden" id="levelComplete">
+        <h2>🎉 Level Selesai! 🎉</h2>
+        <p>Selamat Agent! Kamu berhasil menyelesaikan misi!</p>
+        <div class="equipment-showcase" id="rewards"></div>
+        <button class="btn btn-true" onclick="nextLevel()">Lanjut Misi!</button>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div class="game-over hidden" id="gameOver">
+        <h2>💥 Misi Gagal! 💥</h2>
+        <p>Jangan menyerah Agent! Coba lagi untuk menyelamatkan lab!</p>
+        <button class="btn btn-true" onclick="restart()">Mulai Ulang</button>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            score: 0,
+            lives: 3,
+            level: 1,
+            currentQuestion: 0,
+            soundEnabled: true
+        };
+
+        // Questions Database
+        const questions = {
+            1: [ // Level 1: Basic Chemistry
+                { question: "Air (H₂O) terdiri dari 2 atom hidrogen dan 1 atom oksigen", answer: true },
+                { question: "Oksigen memiliki simbol kimia O₂", answer: false },
+                { question: "Garam dapur adalah NaCl (Natrium Klorida)", answer: true },
+                { question: "Karbon dioksida memiliki rumus CO₂", answer: true },
+                { question: "Hidrogen adalah gas yang paling berat", answer: false }
+            ],
+            2: [ // Level 2: Chemical Reactions
+                { question: "2H₂ + O₂ → 2H₂O adalah reaksi pembentukan air", answer: true },
+                { question: "Fotosintesis menghasilkan oksigen dari karbon dioksida", answer: true },
+                { question: "Pembakaran selalu menghasilkan karbon dioksida dan air", answer: false },
+                { question: "NaOH + HCl → NaCl + H₂O adalah reaksi netralisasi", answer: true },
+                { question: "Reaksi eksoterm menyerap panas dari lingkungan", answer: false }
+            ],
+            3: [ // Level 3: Advanced Chemistry
+                { question: "Benzene memiliki rumus molekul C₆H₆", answer: true },
+                { question: "pH 7 menandakan larutan bersifat asam", answer: false },
+                { question: "Katalis mempercepat reaksi tanpa ikut bereaksi", answer: true },
+                { question: "Elektron bermuatan positif", answer: false },
+                { question: "Isotop memiliki jumlah proton yang berbeda", answer: false }
+            ]
+        };
+
+        // Rewards system
+        const rewards = {
+            1: ["🥽", "🧤", "👩‍🔬"],
+            2: ["🧪", "⚗️", "🔬"],
+            3: ["🏆", "🎖️", "👑"]
+        };
+
+        // Character dialogues
+        const dialogues = {
+            correct: [
+                "Hebat Agent! Kamu benar! 🎉✨",
+                "Pintar sekali! Lanjutkan! ⚡🧪",
+                "Excellent! Kamu ahli kimia! 🧪💫",
+                "Perfect! Misi berlanjut! 🚀⭐",
+                "Bravo! Jawaban tepat! 💎🔬"
+            ],
+            wrong: [
+                "Oops! Coba lagi Agent! 💪✨",
+                "Hampir benar! Jangan menyerah! 🔥💪",
+                "Ups! Tapi kamu bisa! 💫🌟",
+                "Tidak apa-apa, terus belajar! 📚🔬",
+                "Semangat Agent! Kamu pasti bisa! 💪⚡"
+            ],
+            levelStart: [
+                "Siap untuk tantangan baru Agent? 🧪✨",
+                "Level baru menanti! Ayo! 🚀💫",
+                "Misi baru dimulai! 💪🔬",
+                "Waktunya tes kemampuan! ⚡🧪",
+                "Lab baru terbuka! Mari jelajahi! 🏭⭐"
+            ]
+        };
+
+        // Sound effects (using Web Audio API)
+        function playSound(type) {
+            if (!gameState.soundEnabled) return;
+            
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            switch(type) {
+                case 'correct':
+                    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.2);
+                    break;
+                case 'wrong':
+                    oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.3);
+                    break;
+                case 'levelUp':
+                    oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(1000, audioContext.currentTime + 0.5);
+                    break;
+            }
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+        }
+
+        function updateDisplay() {
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('level').textContent = gameState.level;
+            
+            // Update hearts
+            const heartsContainer = document.getElementById('hearts');
+            heartsContainer.innerHTML = '';
+            for (let i = 0; i < gameState.lives; i++) {
+                heartsContainer.innerHTML += '<span class="heart">♥</span>';
+            }
+            
+            // Update progress
+            const progress = (gameState.currentQuestion / questions[gameState.level].length) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+        }
+
+        function showQuestion() {
+            const currentLevelQuestions = questions[gameState.level];
+            if (gameState.currentQuestion >= currentLevelQuestions.length) {
+                completeLevel();
+                return;
+            }
+            
+            const question = currentLevelQuestions[gameState.currentQuestion];
+            document.getElementById('question').textContent = question.question;
+        }
+
+        function updateSpeech(message) {
+            const bubble = document.getElementById('speechBubble');
+            bubble.textContent = message;
+            bubble.style.animation = 'none';
+            setTimeout(() => {
+                bubble.style.animation = 'bounce 0.6s ease-out';
+            }, 10);
+        }
+
+        function answer(userAnswer) {
+            const currentLevelQuestions = questions[gameState.level];
+            const correctAnswer = currentLevelQuestions[gameState.currentQuestion].answer;
+            
+            if (userAnswer === correctAnswer) {
+                gameState.score += 10;
+                playSound('correct');
+                updateSpeech(dialogues.correct[Math.floor(Math.random() * dialogues.correct.length)]);
+            } else {
+                gameState.lives--;
+                playSound('wrong');
+                updateSpeech(dialogues.wrong[Math.floor(Math.random() * dialogues.wrong.length)]);
+                
+                if (gameState.lives <= 0) {
+                    setTimeout(gameOver, 1500);
+                    return;
+                }
+            }
+            
+            gameState.currentQuestion++;
+            updateDisplay();
+            
+            setTimeout(() => {
+                showQuestion();
+                if (gameState.currentQuestion < currentLevelQuestions.length) {
+                    updateSpeech("Pertanyaan selanjutnya siap Agent! 🧪✨");
+                }
+            }, 2000);
+        }
+
+        function completeLevel() {
+            playSound('levelUp');
+            
+            // Show rewards
+            const rewardsContainer = document.getElementById('rewards');
+            rewardsContainer.innerHTML = '';
+            rewards[gameState.level].forEach(reward => {
+                rewardsContainer.innerHTML += `<div class="equipment-item" style="background: linear-gradient(145deg, #FFE066, #FFEB3B);">${reward}</div>`;
+            });
+            
+            document.getElementById('levelComplete').classList.remove('hidden');
+            updateSpeech("Fantastic Agent! Level selesai! 🎉⭐");
+        }
+
+        function nextLevel() {
+            document.getElementById('levelComplete').classList.add('hidden');
+            gameState.level++;
+            gameState.currentQuestion = 0;
+            
+            if (gameState.level > 3) {
+                // Game completed
+                updateSpeech("Selamat! Kamu telah menyelesaikan semua misi! 👑✨");
+                setTimeout(() => {
+                    alert("🎉 GAME SELESAI! 🎉\nKamu adalah Agent Kimia Terbaik!\nSkor Akhir: " + gameState.score + " ⭐");
+                    restart();
+                }, 2000);
+                return;
+            }
+            
+            updateDisplay();
+            showQuestion();
+            updateSpeech(dialogues.levelStart[Math.floor(Math.random() * dialogues.levelStart.length)]);
+        }
+
+        function gameOver() {
+            document.getElementById('gameOver').classList.remove('hidden');
+            updateSpeech("Jangan menyerah Agent! Coba lagi! 💪✨");
+        }
+
+        function restart() {
+            gameState = {
+                score: 0,
+                lives: 3,
+                level: 1,
+                currentQuestion: 0,
+                soundEnabled: gameState.soundEnabled
+            };
+            
+            document.getElementById('levelComplete').classList.add('hidden');
+            document.getElementById('gameOver').classList.add('hidden');
+            
+            updateDisplay();
+            showQuestion();
+            updateSpeech("Halo Agent! Siap untuk misi kimia pertama? 🧪✨");
+        }
+
+        function toggleSound() {
+            gameState.soundEnabled = !gameState.soundEnabled;
+            document.querySelector('.sound-toggle').textContent = gameState.soundEnabled ? '🔊' : '🔇';
+        }
+
+        // Initialize game
+        updateDisplay();
+        showQuestion();
+    </script>
+</body>
+</html>
